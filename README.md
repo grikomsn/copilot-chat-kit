@@ -3,11 +3,10 @@
 Provider-neutral building blocks shared by the Copilot Chat provider extensions
 (openai-oauth, ampersand-bridge, grok, inco, ollama-cloud, opencode, orvix).
 
-The kit is **vendored**, not published: `npm run sync -- <repo> [...]` copies
-`src/` into each extension's `src/kit/` and writes `src/kit/kit.lock.json`. The
-vendored `kit-integrity.test.ts` fails an extension's `npm test` when a kit file
-is edited in place, so every change lands here first and is re-synced. This
-keeps every extension free of runtime dependencies.
+Each extension consumes the kit as a **git submodule at `src/kit`**, so imports
+stay `./kit/<module>` and the extension's own `tsc`, tests, and VSIX packaging
+compile it alongside its sources. The pinned submodule commit is the version;
+nothing is published to npm and the extensions keep zero runtime dependencies.
 
 ## Modules
 
@@ -31,11 +30,31 @@ keeps every extension free of runtime dependencies.
 Provider quirks (auth flows, dialect extensions, cost tables, usage domains)
 stay in each extension and configure these modules through options.
 
+## Constraints for kit code
+
+- No runtime `vscode` import outside `autocomplete/provider.ts`; inject VS Code
+  classes (`ResponsePartConstructors`, `MessagePartClasses`) so modules test in
+  plain Node.
+- No runtime dependencies. Only `node:` built-ins and the extension host.
+- Strict TypeScript compatible with each extension's `tsconfig.json`
+  (`module: Node16`, `target: ES2023`, `rootDir: src`).
+- Colocated `node:test` coverage; the extensions run these tests too.
+
 ## Workflow
 
 ```bash
-npm ci && npm test
-npm run sync -- ../openai-oauth-copilot-chat ../ampersand-bridge-copilot-chat \
-  ../grok-copilot-chat ../inco-copilot-chat ../ollama-cloud-copilot-chat \
-  ../opencode-copilot-chat ../orvix-copilot-chat
+npm ci && npm test                          # in this repository
+
+# adding the kit to an extension
+git submodule add https://github.com/grikomsn/copilot-chat-kit.git src/kit
+
+# picking up a new kit version in an extension
+git submodule update --remote src/kit && npm test
+git commit -am "Update copilot-chat-kit"
+
+# fresh clones of an extension
+git clone --recurse-submodules <extension-repo>   # or: git submodule update --init
 ```
+
+Change kit code here (or inside an extension's `src/kit` checkout, then push
+from there), never as an uncommitted edit an extension ships.
