@@ -12,11 +12,14 @@ export interface RequestDeadlineOptions {
   /** Longest silence between received chunks; omitted disables the idle timer. */
   readonly idleMs?: number;
   readonly cancellation?: CancellationLike;
+  /** Names the request in timeout errors, e.g. "Codex request"; defaults to "Request". */
+  readonly label?: string;
 }
 
 /**
  * One abort signal for a request, tripped by caller cancellation, the total
- * budget, or stream inactivity. Call {@link touch} on every received chunk and
+ * budget, or stream inactivity. A timer abort carries its timeout error as the
+ * signal's reason; caller cancellation aborts with a plain AbortError. Call {@link touch} on every received chunk and
  * {@link dispose} in a `finally` block.
  */
 export class RequestDeadline {
@@ -49,10 +52,10 @@ export class RequestDeadline {
     this.idleTimer = setTimeout(() => this.trip("idle"), Math.max(1, this.options.idleMs));
   }
 
-  /** A descriptive error when a timer fired; undefined otherwise. */
-  timeoutError(label: string): Error | undefined {
-    if (this.reason === "idle") return new Error(`${label} received no data for ${Math.round((this.options.idleMs ?? 0) / 1000)} seconds`);
-    if (this.reason === "total") return new Error(`${label} exceeded ${Math.round(this.options.totalMs / 1000)} seconds`);
+  /** A descriptive error when a timer fired; undefined otherwise (including caller cancellation). */
+  timeoutError(label = this.options.label ?? "Request"): Error | undefined {
+    if (this.reason === "idle") return new Error(`${label} timed out: no data received for ${Math.round((this.options.idleMs ?? 0) / 1000)} seconds`);
+    if (this.reason === "total") return new Error(`${label} timed out after ${Math.round(this.options.totalMs / 1000)} seconds`);
     return undefined;
   }
 
@@ -67,7 +70,8 @@ export class RequestDeadline {
   private trip(reason: "total" | "idle"): void {
     if (this.controller.signal.aborted) return;
     this.reason = reason;
-    this.controller.abort();
+    // The reason surfaces from fetch and stream reads, so make it descriptive.
+    this.controller.abort(this.timeoutError());
   }
 }
 

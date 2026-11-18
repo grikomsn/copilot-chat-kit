@@ -42,13 +42,15 @@ test("idle and total timers abort with descriptive errors", async () => {
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.equal(idle.signal.aborted, true);
   assert.equal(idle.timedOut, "idle");
-  assert.match(idle.timeoutError("Example request")?.message ?? "", /received no data/);
+  assert.match(idle.timeoutError("Example request")?.message ?? "", /Example request timed out: no data received/);
+  assert.match(String((idle.signal.reason as Error).message), /^Request timed out/);
   idle.dispose();
 
-  const total = new RequestDeadline({ totalMs: 5 });
+  const total = new RequestDeadline({ totalMs: 5, label: "Labelled" });
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.equal(total.timedOut, "total");
-  assert.match(total.timeoutError("Example request")?.message ?? "", /exceeded/);
+  assert.match(total.timeoutError("Example request")?.message ?? "", /timed out after/);
+  assert.match(total.timeoutError()?.message ?? "", /^Labelled timed out/);
   total.dispose();
 });
 
@@ -64,6 +66,7 @@ test("caller cancellation aborts without a timeout reason and dispose cleans up"
   assert.equal(deadline.signal.aborted, true);
   assert.equal(deadline.timedOut, undefined);
   assert.equal(deadline.timeoutError("x"), undefined);
+  assert.equal((deadline.signal.reason as Error).name, "AbortError");
   deadline.dispose();
   assert.equal(disposed, true);
 });

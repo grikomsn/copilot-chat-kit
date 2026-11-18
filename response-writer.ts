@@ -66,9 +66,9 @@ export class ResponseWriter {
     ));
   }
 
-  /** Reports usage now, or after the open reasoning segment closes. */
+  /** Reports usage now, or after the open reasoning segment closes; empty payloads are skipped. */
   usage(payload: ProviderUsagePayload | undefined): void {
-    if (!payload) return;
+    if (!payload || !Object.keys(payload).length) return;
     if (this.thinkingOpen) this.pendingUsage.push(payload);
     else this.reportUsage(payload);
   }

@@ -64,6 +64,7 @@ test("skips thinking without host support and empty usage payloads", () => {
   const writer = new ResponseWriter({ report: (part) => output.push(part) }, noThinking, "example", "r");
   writer.thinking("hidden");
   writer.usage(undefined);
+  writer.usage({});
   writer.text("visible");
   writer.report(new Data(new Uint8Array(), "image/png") as never, { closesThinking: false });
   writer.finish();
