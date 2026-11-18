@@ -58,3 +58,13 @@ git clone --recurse-submodules <extension-repo>   # or: git submodule update --i
 
 Change kit code here (or inside an extension's `src/kit` checkout, then push
 from there), never as an uncommitted edit an extension ships.
+
+## Releases
+
+Behavior changes carry a [Changeset](.changeset/README.md). The release
+workflow turns pending changesets into a version pull request; merging it tags
+`vX.Y.Z` and creates a GitHub release. Extensions can pin a tag with
+`git -C src/kit checkout vX.Y.Z` before committing the submodule bump.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the review checklist and
+[SECURITY.md](SECURITY.md) for private vulnerability reports.

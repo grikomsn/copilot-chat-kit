@@ -11,9 +11,12 @@
     "clean": "node -e \"require('node:fs').rmSync('out',{recursive:true,force:true})\"",
     "compile": "npm run clean && tsc -p ./",
     "test": "npm run compile && node --test \"out/**/*.test.js\"",
-    "check": "npm test"
+    "check": "npm test",
+    "changeset": "changeset",
+    "version": "changeset version && npm install --package-lock-only --ignore-scripts"
   },
   "devDependencies": {
+    "@changesets/cli": "3.0.3",
     "@types/node": "24.19.2",
     "@types/vscode": "^1.125.0",
     "typescript": "^6.0.3"
@@ -21,5 +24,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/grikomsn/copilot-chat-kit.git"
+  },
+  "homepage": "https://github.com/grikomsn/copilot-chat-kit#readme",
+  "bugs": {
+    "url": "https://github.com/grikomsn/copilot-chat-kit/issues"
   }
 }

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/grikomsn/copilot-chat-kit/security/policy
+    about: Review the private reporting instructions; do not disclose vulnerabilities publicly.
+  - name: Questions and support
+    url: https://github.com/grikomsn/copilot-chat-kit/discussions/new?category=q-a
+    about: Ask usage and integration questions in Discussions.
+  - name: Problem in one extension
+    url: https://github.com/grikomsn?tab=repositories&q=copilot-chat
+    about: Provider-specific behavior (auth, models, pricing, usage) belongs in that extension's repository.

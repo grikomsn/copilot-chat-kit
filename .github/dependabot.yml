@@ -1,7 +1,7 @@
 version: 2
 updates:
-  # Dev dependencies only (the extension ships no runtime dependencies). One
-  # grouped PR a week keeps churn low; CI's tests and VSIX packaging gate each bump.
+  # Dev dependencies only (the kit ships no runtime dependencies). One grouped
+  # PR a week keeps churn low; CI's tests gate each bump.
   - package-ecosystem: npm
     directory: /
     schedule:
@@ -14,8 +14,8 @@ updates:
       dev-dependencies:
         patterns: ["*"]
     ignore:
-      # @types/vscode must not be newer than engines.vscode, or vsce refuses to
-      # package; raise both together in a deliberate PR.
+      # @types/vscode tracks the oldest engines.vscode among the consuming
+      # extensions; raise it together with them in a deliberate PR.
       - dependency-name: "@types/vscode"
       # Node type majors get a deliberate upgrade PR, not a weekly bump.
       - dependency-name: "@types/node"
