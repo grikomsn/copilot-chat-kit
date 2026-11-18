@@ -1,0 +1,22 @@
+{
+  "name": "copilot-chat-kit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Provider-neutral building blocks vendored into the Copilot Chat provider extensions.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('out',{recursive:true,force:true})\"",
+    "compile": "npm run clean && tsc -p ./",
+    "test": "npm run compile && node --test \"out/**/*.test.js\"",
+    "check": "npm test",
+    "sync": "node scripts/sync.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@types/vscode": "^1.125.0",
+    "typescript": "^6.0.3"
+  }
+}
