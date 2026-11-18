@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { RemoteSnapshot, type SnapshotStore } from "./remote-snapshot";
+import { ephemeralSnapshotStore, RemoteSnapshot, type SnapshotStore } from "./remote-snapshot";
 
 interface Snapshot { readonly fetchedAt: number; readonly ids: string[] }
 
@@ -60,4 +60,10 @@ test("keeps the last good snapshot when a refresh fails or returns unusable data
   const empty = snapshotOf({ store: store("malformed"), fetch: async () => { throw new Error("offline"); } });
   assert.deepEqual(await empty.getOrRefresh(), { fetchedAt: 0, ids: [] });
   assert.equal(empty.current, undefined);
+});
+
+test("an ephemeral store persists nothing", async () => {
+  const memory = ephemeralSnapshotStore();
+  await memory.update("key", { fetchedAt: 1 });
+  assert.equal(memory.get("key"), undefined);
 });

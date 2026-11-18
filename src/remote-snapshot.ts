@@ -9,6 +9,11 @@ export interface SnapshotStore {
   update(key: string, value: unknown): PromiseLike<void>;
 }
 
+/** A store that persists nothing, for hosts without global state (tests, harnesses). */
+export function ephemeralSnapshotStore(): SnapshotStore {
+  return { get: () => undefined, update: async () => undefined };
+}
+
 export interface TimestampedSnapshot {
   readonly fetchedAt: number;
 }
